@@ -1,0 +1,261 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+    int val;
+    struct node *next;
+};
+void adstart(struct node **head,int val)
+{
+    struct node *newnode;
+    newnode=(struct node*)malloc(sizeof(struct node));
+    newnode->val=val;
+    newnode->next=NULL;
+    if(*head==NULL)
+    {
+        *head=newnode;
+        newnode->next=*head;
+    }
+    else
+    {
+        struct node *temp=*head;
+        while(temp->next != *head)
+            temp=temp->next;
+        temp->next=newnode;
+        newnode->next=*head;
+        *head=newnode;
+    }
+}
+void adend(struct node **head,int val)
+{
+    struct node *newnode;
+    newnode=(struct node*)malloc(sizeof(struct node));
+    newnode->val=val;
+    newnode->next=NULL;
+    if(*head==NULL)
+    {
+        *head=newnode;
+        newnode->next=*head;
+    }
+    else
+    {
+        struct node *temp=*head;
+        while(temp->next != *head)
+        {
+            temp=temp->next;
+        }
+        temp->next=newnode;
+        newnode->next=*head;
+    }
+}
+void adonpoz(struct node **head,int poz,int val)
+{
+    struct node *newnode,*aux;
+    newnode=(struct node*)malloc(sizeof(struct node));
+    newnode->val=val;
+    newnode->next=NULL;
+    if(*head==NULL)
+    {
+        *head=newnode;
+        newnode->next=*head;
+    }
+    else
+    {
+        if(poz==1)
+        {
+            struct node *temp=*head;
+            while(temp->next != *head)
+                temp=temp->next;
+            temp->next=newnode;
+            newnode->next=*head;
+            *head=newnode;
+        }
+        else
+        {
+            aux=*head;
+            for(int i=2; i<=poz-1; i++)
+                aux=aux->next;
+            newnode->next=aux->next;
+            aux->next=newnode;
+        }
+    }
+}
+void delstart(struct node **head)
+{
+    if (*head==NULL)
+    {
+        printf("Lista e goala!\n");
+    }
+    else
+    {
+        if((*head)==(*head)->next)
+            *head=NULL;
+        else
+        {
+            struct node *del=*head;
+            struct node *deleted=*head;
+            while(del->next!=*head)
+                del=del->next;
+            *head=(*head)->next;
+            del->next=*head;
+            free(deleted);
+        }
+    }
+}
+void delend(struct node **head)
+{
+    if (*head==NULL)
+    {
+        printf("Lista e goala!\n");
+    }
+    else
+    {
+        if((*head)==(*head)->next)
+            *head=NULL;
+        else
+        {
+            struct node *del=*head;
+            while(del->next->next!=*head)
+                del=del->next;
+            struct node *lst=del->next;
+            del->next=*head;
+            free(lst);
+        }
+    }
+}
+int nr_nod(struct node *head)
+{
+    struct node *parc=head;
+    int nr=0;
+    if(parc!=NULL)
+    {
+        nr++;
+        parc=parc->next;
+    }
+    while(parc!=head)
+    {
+        nr++;
+        parc=parc->next;
+    }
+    return nr;
+}
+void delfrompoz(struct node **head,int poz)
+{
+    int cont=1;
+    if(*head==NULL)
+    {
+        printf("List is empty!\n");
+    }
+    else
+    {
+        if(poz<1 || poz > nr_nod(*head))
+        {
+            printf("Invalid index!\n");
+        }
+        else
+        {
+            if(poz==1)
+            {
+                if((*head)==(*head)->next)
+                    *head=NULL;
+                else
+                {
+                    struct node *del=*head;
+                    struct node *deleted=*head;
+                    while(del->next!=*head)
+                        del=del->next;
+                    *head=(*head)->next;
+                    del->next=*head;
+                    free(deleted);
+                }
+            }
+            else
+            {
+                struct node *del=*head;
+                struct node *deled;
+                while(cont<poz)
+                {
+                    deled=del;
+                    del=del->next;
+                    cont++;
+                }
+                deled->next=del->next;
+                free(del);
+            }
+        }
+    }
+}
+void print(struct node *head)
+{
+    struct node *parc=head;
+    if(head==NULL)
+    {
+        printf("Lista este goala!\n");
+    }
+    else
+    {
+        do
+        {
+            printf("%d ",parc->val);
+            parc=parc->next;
+        }
+        while(parc!=head);
+    }
+}
+int main()
+{
+    struct node *head=NULL;
+    int n;
+    scanf("%d",&n);
+
+    ///am adaugat la inceputul listei
+    /*for(int i=0;i<n;i++)
+    {
+        int val;
+        scanf("%d",&val);
+        adstart(&head,val);
+    }*/
+    ///
+
+    ///am adaugat la finalul listei
+    for(int i=0; i<n; i++)
+    {
+        int val;
+        scanf("%d",&val);
+        adend(&head,val);
+    }
+    ///
+
+    ///am adaugat pe pozitie data
+    /*for(int i=0;i<n;i++)
+    {
+        int val,poz;
+        scanf("%d",&poz);
+        scanf("%d",&val);
+        adonpoz(&head,poz,val);
+    }*/
+    ///
+
+    ///am sters de la inceputul listei
+    //delstart(&head);
+    ///
+
+    ///am sters de la finalul listei
+    //delend(&head);
+    ///
+
+    ///am calculat numarul de noduri
+    //printf("Numarul de noduri este: %d!\n",nr_nod(head));
+    ///
+
+    ///am sters de pe pozitie data
+    /*int poz;
+    scanf("%d",&poz);
+    delfrompoz(&head,poz);*/
+    ///
+
+    ///am afisat lista
+    print(head);
+    ///
+    return 0;
+}
