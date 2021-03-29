@@ -1,0 +1,105 @@
+# include<stdio.h>
+# include<stdlib.h>
+
+typedef struct queue
+{
+    int limit;
+    int top;
+    int end;
+    int elem[100];
+}Queue;
+
+Queue create_queue(int lim)
+{
+    Queue q;
+    q.limit=lim;
+    q.top=-1;
+    q.end=-1;
+    return q;
+}
+void enqueue(Queue *q, int item)
+{
+	if((q->top == 0 && q->end == q->limit-1) || (q->top == q->end+1))
+	{
+		printf("Limit exceeded\n");
+		return;
+	}
+	if (q->top == -1)
+	{
+		q->top = 0;
+		q->end = 0;
+	}
+	else
+	{
+		if(q->end == q->limit-1)
+			q->end = 0;
+		else
+			q->end = q->end+1;
+	}
+	q->elem[q->end] = item ;
+}
+
+void dequeue(Queue *q)
+{
+	if (q->top==-1)
+	{
+		printf("Queue Underflow\n");
+		return ;
+	}
+	if(q->top == q->end)
+	{
+		q->top = -1;
+		q->end=-1;
+	}
+	else
+	{
+		if(q->top == q->limit-1)
+			q->top = 0;
+		else
+			q->top = q->top+1;
+	}
+}
+
+void print(Queue *q)
+{
+	int front_pos = q->top,rear_pos = q->end;
+	if(q->top == -1)
+	{
+		printf("Queue is empty\n");
+		return;
+	}
+	if( front_pos <= rear_pos )
+		while(front_pos <= rear_pos)
+		{
+			printf("%d\n",q->elem[front_pos]);
+			front_pos++;
+		}
+	else
+	{
+		while(front_pos <= q->limit-1)
+		{
+			printf("%d\n",q->elem[front_pos]);
+			front_pos++;
+		}
+		front_pos = 0;
+		while(front_pos <= rear_pos)
+		{
+			printf("%d\n",q->elem[front_pos]);
+			front_pos++;
+		}
+	}
+}
+int main(){
+    Queue q = create_queue(5);
+    int x, i;
+
+    scanf("%d", &x);
+    while(x>0){
+        scanf("%d", &i);
+        enqueue(&q, i);
+        x--;
+    }
+    dequeue(&q);
+    dequeue(&q);
+    print(&q);
+}
