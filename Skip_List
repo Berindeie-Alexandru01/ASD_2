@@ -1,0 +1,258 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define INF (int) (1ll * (1 << 31) - 1)
+
+typedef struct node
+{
+    int val;
+    struct node *up, *down, *left, *right;
+
+}Node;
+
+typedef struct skiplist
+{
+    int hight;
+    Node *head, *tail;
+
+}SkypList;
+
+
+SkypList* buildSL()
+{
+    SkypList* cpy = (SkypList*) malloc(sizeof(SkypList));
+    Node* h1 = (Node*) malloc(sizeof(Node));
+    h1->down = NULL;
+    h1->up = NULL;
+    h1->left = NULL;
+    h1->val = -INF;
+
+    Node* t1 = (Node*) malloc(sizeof(Node));
+    t1->down = NULL;
+    t1->up = NULL;
+    t1->right = NULL;
+    t1->val = INF;
+
+    t1->left = h1;
+    h1->right = t1;
+
+    cpy->head = h1;
+    cpy->tail = t1;
+    cpy->hight = 1;
+
+    return cpy;
+    
+
+}
+
+int greater(int x,int y) 
+{
+    return (x > y);
+}
+
+int lower(int x,int y) 
+{
+    return (x < y);
+}
+
+Node* find_position(Node *current, int nr, int(*cmp)(int, int))
+{
+    int found = 0;
+
+    while(found == 0)
+    {
+        if(cmp(nr, current->right->val))
+            current = current->right;
+        else
+        if(current->down != NULL)
+            current = current->down;
+        else
+            found = 1;
+    }
+
+    return current->right;
+}
+
+Node* find_left_stair(Node* nod)
+{
+    while(nod != NULL)
+    {
+        if(nod->up != NULL)
+            return nod;
+        
+        nod = nod->left;
+    }
+    return NULL;
+}
+
+Node* find_right_stair(Node* nod)
+{
+    while(nod != NULL)
+    {
+        if(nod->up != NULL)
+            return nod;
+        
+        nod = nod->right;
+    }
+    return NULL;
+}
+
+int random_function()
+{
+    time_t t;
+    srand((unsigned) time(&t));
+    return (rand() % 2);
+}
+
+void createvector(int* v,int n)
+{
+    v = (int*) malloc(sizeof(int)* n);
+
+    for(int i = 0; i < n; i++)
+        scanf("%d", &v[i]);
+}
+
+void create_level(SkypList *sl)
+{
+    Node* prevh = sl->head;
+    Node* prevt = sl->tail;
+
+    Node* newh = (Node*) malloc(sizeof(Node));
+    Node* newt = (Node*) malloc(sizeof(Node));
+
+    newh->val = -INF;
+    newh->down = prevh;
+    newh->left = NULL;
+    newh->up = NULL;
+    
+    newt->val = INF;
+    newt->down = prevt;
+    newt->right = NULL;
+    newt->up = NULL;
+
+    newt->left = newh;
+    newh->right = newt;
+
+    prevh->up = newh;
+    prevt->up = newt;
+
+    sl->head = newh;
+    sl->tail = newt;
+
+    sl->hight = sl->hight + 1;
+
+}
+
+void insert(SkypList *sl,int nr,int n, int(*cmp)(int, int))
+{
+    Node* head = sl->head;
+    Node* poz = find_position(head, nr, cmp);
+
+
+    Node* vnou = (Node*) malloc(sizeof(Node));
+    vnou->val = nr;
+    vnou->right = poz;
+    vnou->left = poz->left;
+    vnou->up = NULL;
+    vnou->down = NULL;
+
+    poz->left->right = vnou;
+    poz->left = vnou;
+
+    Node* nodcur = vnou;
+    Node* lstair = nodcur;
+    Node* rstair = nodcur;
+
+    int curh = 1;
+
+    while(random_function() && curh < n)
+    {
+        
+        if(find_left_stair(lstair) == NULL)
+            create_level(sl);
+
+        lstair = find_left_stair(lstair)->up;
+        rstair = find_right_stair(rstair)->up;
+
+        
+        Node* cpy = (Node*) malloc(sizeof(Node));
+        cpy->val = nodcur->val;
+        cpy->down = nodcur;
+        cpy->up = NULL;
+        cpy->left = lstair;
+        cpy->right = rstair;
+        nodcur->up = cpy;
+
+        nodcur = cpy;
+        curh++;
+    }
+
+}
+
+void erase(SkypList *sl,int nr, int(*cmp)(int, int))
+{
+    Node* head = sl->head;
+    Node* poz = find_position(head, nr, cmp);
+
+    Node* p2 = poz;
+    
+
+    poz->left->right = p2->right;
+    poz->right->left = p2->left;
+
+    while(p2->up != NULL)
+        p2 = p2->up;
+    
+    while(p2 != NULL)
+    {
+        p2->left->right = p2->right;
+        p2->right->left = p2->left;
+
+        Node* p3 = p2;
+        p2 = p2->down;
+        free(p3);
+
+    }
+
+}
+
+void print(SkypList *sl)
+{
+    Node* head = sl->head;
+
+    while(head->down != NULL)
+        head = head->down;
+
+    head = head->right;
+    while(head->val != INF)
+    {
+        printf("%d ", head->val);
+        head = head->right;
+    }
+}
+
+int main()
+{
+    SkypList* sl;
+    sl = buildSL();
+    
+    int n;
+    scanf("%d", &n);
+
+    int x;
+    for(int i = 0; i < n; i++)
+    {
+        scanf("%d", &x);
+        insert(sl, x, n,  greater);
+    }
+
+    print(sl);
+    printf("\n");
+
+    erase(sl, 5, greater);
+    print(sl);
+
+    free(sl);
+    
+}
