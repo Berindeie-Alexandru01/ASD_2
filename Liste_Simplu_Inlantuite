@@ -1,0 +1,330 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+    int val;
+    struct node *next;
+};
+void adstart(struct node **head, int val)
+{
+    struct node *newnode;
+    newnode=(struct node*)malloc(sizeof(struct node));
+    newnode->val=val;
+    if(head==NULL)
+    {
+        newnode->next=NULL;
+        *head=newnode;
+    }
+    else
+    {
+        newnode->next=*head;
+        *head=newnode;
+    }
+}
+void adend(struct node **head,int val)
+{
+    struct node *newnode;
+    newnode=(struct node*)malloc(sizeof(struct node));
+    newnode->val=val;
+    newnode->next=NULL;
+    if(*head==NULL)
+    {
+        *head=newnode;
+    }
+    else
+    {
+        struct node *last;
+        last=*head;
+        while(last->next != NULL)
+            last=last->next;
+        last->next=newnode;
+    }
+}
+void adonpoz(struct node **head,int val,int poz)
+{
+    struct node *newnode;
+    newnode=(struct node*)malloc(sizeof(struct node));
+    newnode->val=val;
+    if (poz <1)
+    {
+        printf("Pozitia data nu este valida.\n");
+    }
+    else
+    {
+        if(*head==NULL)
+        {
+            newnode->next=NULL;
+            *head=newnode;
+        }
+        else
+        {
+            if(poz==1)
+            {
+                newnode->next=*head;
+                *head=newnode;
+            }
+            else
+            {
+                struct node *fpoz=*head;
+                for(int i=0; i<poz-2 && fpoz->next!=NULL; i++)
+                {
+                    fpoz=fpoz->next;
+                }
+                newnode->next=fpoz->next;
+                fpoz->next=newnode;
+            }
+        }
+    }
+}
+void delstart(struct node **head)
+{
+    if(*head==NULL)
+    {
+        printf("Lista este goala!\n");
+    }
+    else
+    {
+        struct node *del;
+        del=*head;
+        (*head)=(*head)->next;
+        free(del);
+    }
+}
+void delend(struct node **head)
+{
+    if(*head==NULL)
+    {
+        printf("Lista este goala!\n");
+    }
+    else
+    {
+        struct node *del,*elem;
+        del=elem=*head;
+        while(del->next!=NULL)
+        {
+            elem=del;
+            del=del->next;
+        }
+        if(del==*head)
+        {
+            *head=NULL;
+        }
+        else
+        {
+            elem->next=NULL;
+        }
+        free(del);
+    }
+}
+void delfrompoz(struct node** head, int poz)
+{
+    if(poz < 1)
+    {
+        printf("Pozitia data este invalida!\n");
+    }
+    else if (poz == 1 && *head!= NULL)
+    {
+        struct node* predel = *head;
+        *head = (*head)->next;
+        free(predel);
+    }
+    else
+    {
+        struct node *predel;
+        predel = *head;
+        for(int i = 1; i < poz-1; i++)
+        {
+            if(predel != NULL)
+            {
+                predel = predel ->next;
+            }
+        }
+        if(predel != NULL && predel->next != NULL)
+        {
+            struct node* del = predel->next;
+            predel->next = predel->next->next;
+            free(del);
+        }
+        else
+        {
+            printf("Pozitia data este invalida!\n");
+        }
+    }
+}
+void print(struct node *head)
+{
+    struct node *prt;
+    prt=head;
+    if(prt == NULL)
+    {
+        printf("Lista este goala!\n");
+    }
+    else
+    {
+        while(prt!=NULL)
+        {
+            printf("%d ",prt->val);
+            prt=prt->next;
+        }
+        printf("\n");
+    }
+}
+void inv_list(struct node **head)
+{
+    struct node *prevE,*curE;
+    if(*head != NULL)
+    {
+        prevE=*head;
+        curE=(*head)->next;
+        *head=(*head)->next;
+        prevE->next=NULL;
+    }
+    while(*head!=NULL)
+    {
+        *head=(*head)->next;
+        curE->next=prevE;
+        prevE=curE;
+        curE=*head;
+    }
+    *head=prevE;
+}
+void del_list(struct node** head)
+{
+   struct node *del = *head;
+   struct node *del_n;
+
+   while (del != NULL)
+   {
+       del_n = del->next;
+       free(del);
+       del = del_n;
+   }
+   *head= NULL;
+}
+struct node* copy_list(struct node *head)
+{
+    struct node* init_l = head;
+    struct node* head_nl = NULL;
+    struct node* copie_l = NULL;
+
+    while (init_l != NULL)
+    {
+        if (head_nl == NULL)
+        {
+            head_nl = (struct node*)malloc(sizeof(struct node));
+            head_nl->val = init_l->val;
+            head_nl->next = NULL;
+            copie_l = head_nl;
+        }
+        else {
+            copie_l->next = (struct node*)malloc(sizeof(struct node));
+            copie_l = copie_l->next;
+            copie_l->val = init_l->val;
+            copie_l->next = NULL;
+        }
+        init_l = init_l->next;
+    }
+
+    return head_nl;
+}
+void num_nod(struct node *head)
+{
+    struct node *nrn=head;
+    int nr=0;
+    while(nrn!=NULL)
+    {
+        nr++;
+        nrn=nrn->next;
+    }
+    printf("Lista contine %d noduri!\n",nr);
+}
+int main()
+{
+    ///ne cream lista
+    struct node *head=NULL;
+    struct node *copie=NULL;
+    ///
+
+    int n;
+    scanf("%d",&n);
+
+    ///am inserat in fata listei
+    /*for(int i=0;i<n;i++)
+    {
+        int val;
+        scanf("%d",&val);
+        adstart(&head,val);
+    }*/
+    ///
+
+    ///am inserat in spatele listei
+    for(int i=0; i<n; i++)
+    {
+        int val;
+        scanf("%d",&val);
+        adend(&head,val);
+    }
+    ///
+
+    ///am inserat pe o pozitie data in lista
+    /*for(int i=0; i<n; i++)
+    {
+        int val,poz;
+        scanf("%d",&val);
+        scanf("%d",&poz);
+        adonpoz(&head,val,poz);
+    }*/
+    ///
+
+    ///am sters de la inceputul listei
+    /*int m;
+    scanf("%d",&m);
+    for(int i=0; i<m; i++)
+    {
+        delstart(&head);
+    }*/
+    ///
+
+    ///am sters de la finalul listei
+    /*int m;
+    scanf("%d",&m);
+    for(int i=0; i<m; i++)
+    {
+        delend(&head);
+    }*/
+    ///
+
+    ///am sters de pe pozitie data
+    /*int m,poz;
+    scanf("%d",&m);
+    for(int i=0; i<m; i++)
+    {
+        scanf("%d",&poz);
+        delfrompoz(&head,poz);
+    }*/
+    ///
+
+    ///am afisat lista in ordine inversa
+    /*inv_list(&head);
+    print(head);*/
+    ///
+
+    ///am sters lista
+    //del_list(&head);
+    ///
+
+    ///am afisat lista
+    print(head);
+    ///
+
+    ///calculam numarul de noduri din lista
+    //num_nod(head);
+    ///
+
+    ///am afisat inversa listei fara a strica lista
+    /*copie=copy_list(head);
+    inv_list(&copie);
+    print(copie);*/
+    ///
+    return 0;
+}
