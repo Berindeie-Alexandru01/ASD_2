@@ -1,0 +1,233 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <math.h>
+char stack[100];                    //stack ul folosit pentru transformarea din infix in postfix
+int ev_stack[100];                  //stack
+int top=-1;                         //top va fi folosit la ambele stack uri
+void ev_push(int val)               //adaugam un element in stiva de evaluare a expresiei
+{
+    if(top >= 100)                  //daca avem deja in stiva numarul maxim de elemente nu mai putem adauga
+        printf("Stiva este plina, nu mai pot si adaugate elemente!");
+    else
+    {
+        top = top + 1;              //alfel adaugam un elementul
+        ev_stack[top] = val;
+    }
+}
+int ev_pop()                        //extragem un element din stiva pentru evaluare
+{
+    int poped;                      //salvam elementul extras pentru a-l putea returna
+    if(top < 0)                     //daca topul este -1 inseamna ca nu mai avem elemente in stiva sau ca expresia introdusa este goala
+        printf("Invalid expression.");
+    else
+    {
+        poped=ev_stack[top];        //salvam elementul extras
+        top=top-1;                  //extragem elementul din stiva
+        return poped;
+    }
+}
+void EvalPostfix(char postfix[])   //evaluam expresia postfixa
+{
+    int i,val,A,B;                 //cu i parcurgem expresia,in val calculam valoarea expresiei,in A si B salvam primul element din stiva si in B urmatorul
+    char ch;                       //salvam caracterul curent
+    for (i=0; i<strlen(postfix); i++) //parcurgem expresia de la inceput la final
+    {
+        ch=postfix[i];             //salvam caracterul curent
+        if(ch!='+' && ch!='-' && ch!='*' && ch!='/' && ch!='^') //verificam daca avem alte caractere in afara de semne sau cifre
+        {
+            if(isdigit(ch)==0 )
+            {
+                printf("Expresia contine alte simboluri decat cele valide deci nu se poate face evaluarea!");
+                exit(1);
+            }
+        }
+        if(isdigit(ch))             //verificam daca este cifra
+        {
+            ev_push(ch-'0');        //daca este cifra transformam din char in int
+        }
+        else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch=='^') //daca este semn incepem extragerea
+        {
+            A=ev_pop();             //extragem primul element
+            B=ev_pop();             //extragem urmatorul element
+            if (ch=='+')            //daca avem operatorul + adunam cele 2 elemente
+                val=B+A;
+            if (ch=='-')            //daca avem operatorul - scadem cele 2 elemente
+                val=B-A;
+            if (ch=='*')            //daca avem operatorul * inmultim cele 2 elemente
+                val=B*A;
+            if (ch=='/')            //daca avem operatorul / impartim cele 2 elemente
+                val=B/A;
+            if (ch=='^')            //daca avem operatorul ^ facem ridicarea la putere
+                val=pow(B,A);
+            ev_push(val);           //adaugam val obtinuta in stiva
+        }
+    }
+    printf("%d",val);               //afisam valoarea expresiei introduse
+}
+void push(char val)                 //adaugam un element in stiva de transformare
+{
+    if(top >= 100)                  //daca avem deja in stiva numarul maxim de elemente nu mai putem adauga
+    {
+        printf("Stiva este plina, nu mai pot si adaugate elemente!");
+    }
+    else
+    {
+        top=top+1;                   //adaugam elementul in stiva
+        stack[top]=val;
+    }
+}
+char pop()                          //extragem un element din stiva
+{
+    char poped;                     //salvam elementul extras
+    if(top<0)
+    {
+        printf("Invalid infix.");   //daca topul este -1 inseamna ca nu mai avem elemente in stiva sau ca expresia introdusa este goala
+        getchar();
+        exit(1);                    //iesim din program
+    }
+    else
+    {
+        poped=stack[top];           //extragem elementul
+        top=top-1;
+        return poped;
+    }
+}
+int is_operator(char semn)       //verificam daca caractetul este semn
+{
+    if(semn == '^' || semn == '*' || semn == '/' || semn == '+' || semn =='-')
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+int precedence(char semn)     //dam precedenta operatorilor in functie de ordinea efectuarii operatiilor
+{
+    if(semn == '^')
+    {
+        return(3);
+    }
+    else if(semn == '*' || semn == '/')
+    {
+        return(2);
+    }
+    else if(semn == '+' || semn == '-')
+    {
+        return(1);
+    }
+    else
+    {
+        return(0);
+    }
+}
+void afis_s()
+{
+    int i;
+    //if (top==-1)
+    //printf("Stiva e goala.");
+    for(i=0;i<=top;i++)
+        printf("%c",stack[i]);
+    //printf("\n");
+    if(top==-1) printf("Goala.");
+}
+void InfixToPostfix(char infix_exp[], char postfix_exp[]) //incepem transformarea
+{
+    int nrs=30;//strlen(infix_exp);
+    int i=0, j=0;                             //folosim i si j pentru parcurgerea expresiei
+    char item;                               //salvam caracterul curent
+    char x;                                 //salvam operatorul curent
+    for(int k=0;k<14;k++) printf(" ");
+    printf("Expresia postfixa:");
+    for (int k=0;k<nrs-18;k++)
+        printf(" ");
+    printf("Stiva:\n");
+    push('(');                             //introducem ( in stiva pentru a putea incepe evaluarea
+    printf("Pasul 0");
+    for (int k=0;k<nrs+7;k++)
+        printf(" ");
+    afis_s();
+    printf("\n");
+    strcat(infix_exp,")");                //adaugam la finalul expresiei initiale )
+    item=infix_exp[i];                    //luam primul caracter din expresie
+    while(item != '\0')                   //cat timp nu am ajuns la finalul expresiei continuam
+    {
+        if(item == '(')                 //daca avem ( introducem elementul in stiva
+        {
+            push(item);
+        }
+        else if( isdigit(item) || isalpha(item))    //daca avem un element(nu parateza sau semn) il adugam la expresia postfixa
+        {
+            postfix_exp[j] = item;
+            j++;
+        }
+        else if(is_operator(item) == 1)             //daca avem un semn extragem toti operatorii cu precedenta mai mare ca el din stiva si ii adugam la expresia postfixa
+        {
+            x=pop();                                //extragem semnul
+            while(is_operator(x) == 1 && precedence(x)>= precedence(item)) //cat timp avem operatori cu precedenta mai mare ca cea a noastra continuam extragerea si adaugam la expresia postfixa
+            {
+                postfix_exp[j] = x;
+                j++;
+                x = pop();
+            }
+            push(x);                                //adaugam inapoi in stiva operatorul extras in plus
+            push(item);                             //dupa terminarea extragerii adaugam in stiva operatorul curent(ultimul citit din expresia infixa)
+        }
+        else if(item == ')')                        //daca avem ) extragem pana intalnim ( si adugam la expresia postfixa
+        {
+            x = pop();
+            while(x != '(')
+            {
+                postfix_exp[j] = x;
+                j++;
+                x = pop();
+            }
+        }
+        else
+        {
+            printf("\nInvalid infix Expression.\n"); //daca intalnim un alt simbol decat cele de mai sus expresia nu este valida deoarece s-a folosit un element interzis
+            getchar();
+            exit(1);                                //iesim din program
+        }
+        i++;                                        //trecem la urmatorul caracter din expresia infix
+
+
+        item = infix_exp[i];                        //salvam in item urmatorul caracter din expresia infix
+        if (item==' ') {i++;item = infix_exp[i];}
+
+        printf("Pasul %d",i);
+        if(i<=9) printf("       ");
+        if(i>9 && i<=99) printf("      ");
+        if(i>99 && i<=999) printf("     ");
+        for (int z=0;z<j;z++)
+            printf("%c",postfix_exp[z]);
+        for(int k=0;k<nrs-j;k++)
+            printf(" ");
+        afis_s();
+        printf("\n");
+    }
+    if(top>0)
+    {
+        printf("\nInvalid infix Expression.\n");   //daca la final mai raman elemente in stiva inseamna ca expresia nu este valida
+        getchar();
+        exit(1);                                   //iesim din program
+    }
+    postfix_exp[j] = '\0';                         //adaugam simbolul terminal la capatul expresiei postfixe
+}
+int main()
+{
+    char infix[100],postfix[100];                  //avem expresia infixa si postfixa
+    printf("Introduceti expresia:\n");             //citim expresia infixa
+    fflush(stdin);
+    gets(infix);
+    printf("\n");
+    InfixToPostfix(infix,postfix);                //transformam expresia infixa in expresie postfixa
+    //printf("Expresia in forma postfix este:\n");
+    //printf("%s",postfix);
+    //printf("\n");
+    //EvalPostfix(postfix);
+    return 0;
+}
